@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:fragment="layout(content)">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DockerJavaSpringBoot</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/" class="brand">DockerJavaSpringBoot</a>
+        <a th:href="@{/produits}">Produits</a>
+        <a th:href="@{/utilisateurs}">Utilisateurs</a>
+    </nav>
+
+    <div class="container" th:replace="${content}">
+    </div>
+
+    <footer>
+        Ulrich COUDIN - INGE2APP LSI1 | 06/03/2026
+    </footer>
+</body>
+</html>

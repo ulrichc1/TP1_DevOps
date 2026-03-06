@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Produits - DockerJavaSpringBoot</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/" class="brand">DockerJavaSpringBoot</a>
+        <a th:href="@{/produits}">Produits</a>
+        <a th:href="@{/utilisateurs}">Utilisateurs</a>
+    </nav>
+
+    <div class="container">
+        <h1>Liste des Produits</h1>
+
+        <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+        <div th:if="${erreur}" class="alert alert-danger" th:text="${erreur}"></div>
+
+        <p>
+            <a th:href="@{/produits/nouveau}" class="btn btn-primary">+ Ajouter un produit</a>
+        </p>
+
+        <table th:if="${!produits.isEmpty()}">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nom</th>
+                    <th>Description</th>
+                    <th>Prix</th>
+                    <th>Quantité</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="produit : ${produits}">
+                    <td th:text="${produit.id}"></td>
+                    <td th:text="${produit.nom}"></td>
+                    <td th:text="${produit.description}"></td>
+                    <td th:text="${#numbers.formatDecimal(produit.prix, 1, 2)} + ' €'"></td>
+                    <td th:text="${produit.quantite}"></td>
+                    <td class="actions">
+                        <a th:href="@{/produits/modifier/{id}(id=${produit.id})}" class="btn btn-warning">Modifier</a>
+                        <a th:href="@{/produits/supprimer/{id}(id=${produit.id})}" class="btn btn-danger"
+                           onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce produit ?')">Supprimer</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div th:if="${produits.isEmpty()}" class="card">
+            <p>Aucun produit trouvé. Ajoutez-en un !</p>
+        </div>
+    </div>
+
+    <footer>
+        Ulrich COUDIN - INGE2APP LSI1 | 06/03/2026
+    </footer>
+</body>
+</html>
