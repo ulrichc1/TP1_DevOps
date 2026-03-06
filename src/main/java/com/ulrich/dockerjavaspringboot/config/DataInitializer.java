@@ -1,5 +1,5 @@
 /**
- * Ulrich COUDIN - INGE2APP LSI1
+ * INGE2APP LSI1
  * Date : 06/03/2026
  */
 package com.ulrich.dockerjavaspringboot.config;
@@ -28,7 +28,7 @@ public class DataInitializer implements CommandLineRunner {
         produitRepository.save(new Produit("Clavier mécanique", "Clavier RGB switches bleus", 79.99, 25));
         produitRepository.save(new Produit("Souris sans fil", "Souris ergonomique Bluetooth", 34.99, 50));
 
-        utilisateurRepository.save(new Utilisateur("Coudin", "Ulrich", "ulrich.coudin@exemple.com"));
+        utilisateurRepository.save(new Utilisateur("Martin", "Pierre", "pierre.martin@exemple.com"));
         utilisateurRepository.save(new Utilisateur("Dupont", "Jean", "jean.dupont@exemple.com"));
     }
 }
