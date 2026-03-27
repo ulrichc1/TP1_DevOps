@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run tests in Docker
+        run: docker build --target test -t tp1-test .
+
+  build-and-smoke:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build production image
+        run: docker build -t tp1-app .
+
+      - name: Smoke test
+        run: |
+          docker run -d --name smoketest -p 8080:8080 tp1-app
+          for i in $(seq 1 30); do
+            curl -sf http://localhost:8080 > /dev/null && echo "App is up!" && exit 0
+            sleep 1
+          done
+          echo "App failed to start"
+          docker logs smoketest
+          exit 1
+
+      - name: Cleanup
+        if: always()
+        run: docker rm -f smoketest 2>/dev/null || true
