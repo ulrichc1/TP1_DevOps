@@ -1,7 +1,3 @@
-/**
- * INGE2APP LSI1
- * Date : 06/03/2026
- */
 package com.ulrich.dockerjavaspringboot.controller;
 
 import com.ulrich.dockerjavaspringboot.model.Produit;

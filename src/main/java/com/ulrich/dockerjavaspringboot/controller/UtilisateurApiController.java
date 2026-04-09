@@ -1,9 +1,3 @@
-/**
- * INGE2APP LSI1
- * Date : 06/03/2026
- *
- * Microservice REST - Gestion des Utilisateurs
- */
 package com.ulrich.dockerjavaspringboot.controller;
 
 import com.ulrich.dockerjavaspringboot.model.Utilisateur;
