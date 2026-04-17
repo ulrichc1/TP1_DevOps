@@ -1,7 +1,7 @@
 package com.ulrich.dockerjavaspringboot.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ulrich.dockerjavaspringboot.model.Produit;
+import com.ulrich.dockerjavaspringboot.dto.ProduitDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +38,7 @@ public class ProduitApiControllerTest {
 
     @Test
     public void testCreerProduit() throws Exception {
-        Produit produit = new Produit("Laptop", "PC portable", 999.99, 10);
+        ProduitDto produit = new ProduitDto(null, "Laptop", "PC portable", 999.99, 10);
 
         mockMvc.perform(post("/api/produits")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -48,7 +48,7 @@ public class ProduitApiControllerTest {
 
     @Test
     public void testCreerProduit_DonneesInvalides() throws Exception {
-        Produit invalide = new Produit("", "", -1.0, -5);
+        ProduitDto invalide = new ProduitDto(null, "", "", -1.0, -5);
 
         mockMvc.perform(post("/api/produits")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -64,7 +64,7 @@ public class ProduitApiControllerTest {
 
     @Test
     public void testCreerPuisRecuperer() throws Exception {
-        Produit produit = new Produit("Souris", "Souris sans fil", 29.99, 50);
+        ProduitDto produit = new ProduitDto(null, "Souris", "Souris sans fil", 29.99, 50);
 
         String response = mockMvc.perform(post("/api/produits")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -82,7 +82,7 @@ public class ProduitApiControllerTest {
 
     @Test
     public void testSupprimerProduit() throws Exception {
-        Produit produit = new Produit("Clavier", "Clavier mécanique", 79.99, 20);
+        ProduitDto produit = new ProduitDto(null, "Clavier", "Clavier mecanique", 79.99, 20);
 
         String response = mockMvc.perform(post("/api/produits")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -96,6 +96,45 @@ public class ProduitApiControllerTest {
                 .andExpect(status().isNoContent());
 
         mockMvc.perform(get("/api/produits/" + id))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void testModifierProduit() throws Exception {
+        ProduitDto produit = new ProduitDto(null, "Casque", "Casque audio", 59.99, 15);
+
+        String response = mockMvc.perform(post("/api/produits")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(produit)))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+
+        Long id = objectMapper.readTree(response).get("id").asLong();
+
+        ProduitDto modifie = new ProduitDto(null, "Casque Pro", "Casque audio haute fidelite", 89.99, 12);
+
+        mockMvc.perform(put("/api/produits/" + id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(modifie)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(id))
+                .andExpect(jsonPath("$.nom").value("Casque Pro"))
+                .andExpect(jsonPath("$.prix").value(89.99));
+    }
+
+    @Test
+    public void testModifierProduit_NonTrouve() throws Exception {
+        ProduitDto modifie = new ProduitDto(null, "Inexistant", "Produit", 10.0, 1);
+
+        mockMvc.perform(put("/api/produits/9999")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(modifie)))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void testSupprimerProduit_NonTrouve() throws Exception {
+        mockMvc.perform(delete("/api/produits/9999"))
                 .andExpect(status().isNotFound());
     }
 }

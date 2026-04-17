@@ -13,6 +13,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @RequestMapping("/produits")
 public class ProduitController {
 
+    private static final String FORM_VIEW = "produits/formulaire";
+    private static final String REDIRECT_LIST = "redirect:/produits";
+
     private final ProduitService produitService;
 
     public ProduitController(ProduitService produitService) {
@@ -28,7 +31,7 @@ public class ProduitController {
     @GetMapping("/nouveau")
     public String formulaireCreation(Model model) {
         model.addAttribute("produit", new Produit());
-        return "produits/formulaire";
+        return FORM_VIEW;
     }
 
     @PostMapping("/enregistrer")
@@ -36,11 +39,11 @@ public class ProduitController {
                               BindingResult result,
                               RedirectAttributes redirectAttributes) {
         if (result.hasErrors()) {
-            return "produits/formulaire";
+            return FORM_VIEW;
         }
         produitService.enregistrer(produit);
         redirectAttributes.addFlashAttribute("message", "Produit enregistré avec succès !");
-        return "redirect:/produits";
+        return REDIRECT_LIST;
     }
 
     @GetMapping("/modifier/{id}")
@@ -49,11 +52,11 @@ public class ProduitController {
         return produitService.trouverParId(id)
                 .map(produit -> {
                     model.addAttribute("produit", produit);
-                    return "produits/formulaire";
+                    return FORM_VIEW;
                 })
                 .orElseGet(() -> {
                     redirectAttributes.addFlashAttribute("erreur", "Produit non trouvé.");
-                    return "redirect:/produits";
+                    return REDIRECT_LIST;
                 });
     }
 
@@ -61,6 +64,6 @@ public class ProduitController {
     public String supprimer(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         produitService.supprimer(id);
         redirectAttributes.addFlashAttribute("message", "Produit supprimé avec succès !");
-        return "redirect:/produits";
+        return REDIRECT_LIST;
     }
 }

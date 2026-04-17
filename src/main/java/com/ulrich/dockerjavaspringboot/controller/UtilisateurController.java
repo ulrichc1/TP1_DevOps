@@ -13,6 +13,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @RequestMapping("/utilisateurs")
 public class UtilisateurController {
 
+    private static final String FORM_VIEW = "utilisateurs/formulaire";
+    private static final String REDIRECT_LIST = "redirect:/utilisateurs";
+
     private final UtilisateurService utilisateurService;
 
     public UtilisateurController(UtilisateurService utilisateurService) {
@@ -28,7 +31,7 @@ public class UtilisateurController {
     @GetMapping("/nouveau")
     public String formulaireCreation(Model model) {
         model.addAttribute("utilisateur", new Utilisateur());
-        return "utilisateurs/formulaire";
+        return FORM_VIEW;
     }
 
     @PostMapping("/enregistrer")
@@ -36,11 +39,11 @@ public class UtilisateurController {
                               BindingResult result,
                               RedirectAttributes redirectAttributes) {
         if (result.hasErrors()) {
-            return "utilisateurs/formulaire";
+            return FORM_VIEW;
         }
         utilisateurService.enregistrer(utilisateur);
         redirectAttributes.addFlashAttribute("message", "Utilisateur enregistré avec succès !");
-        return "redirect:/utilisateurs";
+        return REDIRECT_LIST;
     }
 
     @GetMapping("/modifier/{id}")
@@ -49,11 +52,11 @@ public class UtilisateurController {
         return utilisateurService.trouverParId(id)
                 .map(utilisateur -> {
                     model.addAttribute("utilisateur", utilisateur);
-                    return "utilisateurs/formulaire";
+                    return FORM_VIEW;
                 })
                 .orElseGet(() -> {
                     redirectAttributes.addFlashAttribute("erreur", "Utilisateur non trouvé.");
-                    return "redirect:/utilisateurs";
+                    return REDIRECT_LIST;
                 });
     }
 
@@ -61,6 +64,6 @@ public class UtilisateurController {
     public String supprimer(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         utilisateurService.supprimer(id);
         redirectAttributes.addFlashAttribute("message", "Utilisateur supprimé avec succès !");
-        return "redirect:/utilisateurs";
+        return REDIRECT_LIST;
     }
 }

@@ -1,5 +1,6 @@
 package com.ulrich.dockerjavaspringboot.controller;
 
+import com.ulrich.dockerjavaspringboot.dto.UtilisateurDto;
 import com.ulrich.dockerjavaspringboot.model.Utilisateur;
 import com.ulrich.dockerjavaspringboot.service.UtilisateurService;
 import jakarta.validation.Valid;
@@ -20,29 +21,33 @@ public class UtilisateurApiController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Utilisateur>> listerTous() {
-        return ResponseEntity.ok(utilisateurService.listerTous());
+    public ResponseEntity<List<UtilisateurDto>> listerTous() {
+        List<UtilisateurDto> utilisateurs = utilisateurService.listerTous().stream()
+                .map(this::toDto)
+                .toList();
+        return ResponseEntity.ok(utilisateurs);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Utilisateur> trouverParId(@PathVariable Long id) {
+    public ResponseEntity<UtilisateurDto> trouverParId(@PathVariable Long id) {
         return utilisateurService.trouverParId(id)
-                .map(ResponseEntity::ok)
+                .map(utilisateur -> ResponseEntity.ok(toDto(utilisateur)))
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public ResponseEntity<Utilisateur> creer(@Valid @RequestBody Utilisateur utilisateur) {
-        Utilisateur nouveau = utilisateurService.enregistrer(utilisateur);
-        return ResponseEntity.status(HttpStatus.CREATED).body(nouveau);
+    public ResponseEntity<UtilisateurDto> creer(@Valid @RequestBody UtilisateurDto utilisateurDto) {
+        Utilisateur nouveau = utilisateurService.enregistrer(toEntity(utilisateurDto));
+        return ResponseEntity.status(HttpStatus.CREATED).body(toDto(nouveau));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Utilisateur> modifier(@PathVariable Long id, @Valid @RequestBody Utilisateur utilisateur) {
+    public ResponseEntity<UtilisateurDto> modifier(@PathVariable Long id, @Valid @RequestBody UtilisateurDto utilisateurDto) {
         return utilisateurService.trouverParId(id)
                 .map(existant -> {
-                    utilisateur.setId(id);
-                    return ResponseEntity.ok(utilisateurService.enregistrer(utilisateur));
+                    Utilisateur aMettreAJour = toEntity(utilisateurDto);
+                    aMettreAJour.setId(id);
+                    return ResponseEntity.ok(toDto(utilisateurService.enregistrer(aMettreAJour)));
                 })
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -55,5 +60,23 @@ public class UtilisateurApiController {
                     return ResponseEntity.noContent().<Void>build();
                 })
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    private UtilisateurDto toDto(Utilisateur utilisateur) {
+        return new UtilisateurDto(
+                utilisateur.getId(),
+                utilisateur.getNom(),
+                utilisateur.getPrenom(),
+                utilisateur.getEmail()
+        );
+    }
+
+    private Utilisateur toEntity(UtilisateurDto dto) {
+        Utilisateur utilisateur = new Utilisateur();
+        utilisateur.setId(dto.id());
+        utilisateur.setNom(dto.nom());
+        utilisateur.setPrenom(dto.prenom());
+        utilisateur.setEmail(dto.email());
+        return utilisateur;
     }
 }

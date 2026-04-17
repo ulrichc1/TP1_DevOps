@@ -1,5 +1,6 @@
 package com.ulrich.dockerjavaspringboot.controller;
 
+import com.ulrich.dockerjavaspringboot.dto.ProduitDto;
 import com.ulrich.dockerjavaspringboot.model.Produit;
 import com.ulrich.dockerjavaspringboot.service.ProduitService;
 import jakarta.validation.Valid;
@@ -20,29 +21,33 @@ public class ProduitApiController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Produit>> listerTous() {
-        return ResponseEntity.ok(produitService.listerTous());
+    public ResponseEntity<List<ProduitDto>> listerTous() {
+        List<ProduitDto> produits = produitService.listerTous().stream()
+                .map(this::toDto)
+                .toList();
+        return ResponseEntity.ok(produits);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Produit> trouverParId(@PathVariable Long id) {
+    public ResponseEntity<ProduitDto> trouverParId(@PathVariable Long id) {
         return produitService.trouverParId(id)
-                .map(ResponseEntity::ok)
+                .map(produit -> ResponseEntity.ok(toDto(produit)))
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public ResponseEntity<Produit> creer(@Valid @RequestBody Produit produit) {
-        Produit nouveau = produitService.enregistrer(produit);
-        return ResponseEntity.status(HttpStatus.CREATED).body(nouveau);
+    public ResponseEntity<ProduitDto> creer(@Valid @RequestBody ProduitDto produitDto) {
+        Produit nouveau = produitService.enregistrer(toEntity(produitDto));
+        return ResponseEntity.status(HttpStatus.CREATED).body(toDto(nouveau));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Produit> modifier(@PathVariable Long id, @Valid @RequestBody Produit produit) {
+    public ResponseEntity<ProduitDto> modifier(@PathVariable Long id, @Valid @RequestBody ProduitDto produitDto) {
         return produitService.trouverParId(id)
                 .map(existant -> {
-                    produit.setId(id);
-                    return ResponseEntity.ok(produitService.enregistrer(produit));
+                    Produit aMettreAJour = toEntity(produitDto);
+                    aMettreAJour.setId(id);
+                    return ResponseEntity.ok(toDto(produitService.enregistrer(aMettreAJour)));
                 })
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -55,5 +60,25 @@ public class ProduitApiController {
                     return ResponseEntity.noContent().<Void>build();
                 })
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    private ProduitDto toDto(Produit produit) {
+        return new ProduitDto(
+                produit.getId(),
+                produit.getNom(),
+                produit.getDescription(),
+                produit.getPrix(),
+                produit.getQuantite()
+        );
+    }
+
+    private Produit toEntity(ProduitDto dto) {
+        Produit produit = new Produit();
+        produit.setId(dto.id());
+        produit.setNom(dto.nom());
+        produit.setDescription(dto.description());
+        produit.setPrix(dto.prix());
+        produit.setQuantite(dto.quantite());
+        return produit;
     }
 }

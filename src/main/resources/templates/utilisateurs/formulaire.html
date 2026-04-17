@@ -14,7 +14,7 @@
     </nav>
 
     <div class="container">
-        <h1 th:text="${utilisateur.id != null ? 'Modifier l\'utilisateur' : 'Nouvel utilisateur'}"></h1>
+        <h1 th:text="${utilisateur.id != null ? 'Modifier l''utilisateur' : 'Nouvel utilisateur'}"></h1>
 
         <div class="card">
             <form th:action="@{/utilisateurs/enregistrer}" th:object="${utilisateur}" method="post">
